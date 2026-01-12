@@ -1,0 +1,9 @@
+.venv/
+.env
+app/data/cache/genai_cache.json
+__pycache__/
+*.pyc
+.pytest_cache/
+.streamlit/
+app/data/user_responses/
+app/data/cache/

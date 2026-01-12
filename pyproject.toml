@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gen-ai"
+version = "0.1.0"
+description = "Questionnaire Streamlit avec analyse semantique"
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+  "streamlit",
+  "sentence-transformers",
+  "scikit-learn",
+  "numpy",
+  "pandas",
+  "plotly",
+  "google-generativeai",
+  "python-dotenv"
+]
