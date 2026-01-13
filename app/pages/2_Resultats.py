@@ -11,11 +11,13 @@ from app.nlp.pipeline import run_pipeline
 from app.services.genai import build_synthesis_prompt, generate_synthesis
 from app.services.referential_loader import load_books
 from app.ui.state import init_state
+from app.ui.theme import apply_book_theme
 from app.ui.viz import show_books, show_coverage, show_similarity, show_synthesis
 
 
 st.set_page_config(page_title="Resultats", layout="wide")
 init_state()
+apply_book_theme()
 
 st.title("Resultats")
 

@@ -3,10 +3,12 @@ import streamlit as st
 
 from app.services.referential_loader import load_books, load_questions
 from app.ui.state import init_state
+from app.ui.theme import apply_book_theme
 
 
 st.set_page_config(page_title="Referentiel", layout="wide")
 init_state()
+apply_book_theme()
 
 st.title("Referentiel")
 

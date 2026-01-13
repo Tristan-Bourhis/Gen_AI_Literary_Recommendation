@@ -6,10 +6,12 @@ from app.services.referential_loader import load_questions
 from app.services.storage import save_responses
 from app.ui.forms import render_questionnaire
 from app.ui.state import init_state
+from app.ui.theme import apply_book_theme
 
 
 st.set_page_config(page_title="Questionnaire", layout="wide")
 init_state()
+apply_book_theme()
 
 st.title("Questionnaire de preferences de lecture")
 st.caption("Complete les sections puis va dans Resultats pour l'analyse.")

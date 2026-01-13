@@ -1,10 +1,12 @@
 import streamlit as st
 
 from app.ui.state import init_state
+from app.ui.theme import apply_book_theme
 
 
 st.set_page_config(page_title="Accueil", layout="wide")
 init_state()
+apply_book_theme()
 
 st.title("Recommandation litteraire par analyse semantique")
 st.write(
