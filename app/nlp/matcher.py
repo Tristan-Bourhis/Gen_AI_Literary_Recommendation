@@ -22,7 +22,7 @@ def match_segments_to_books(segments, books):
                 book.get("summary", ""),
             ]
         )
-        book_texts.append(combined)
+        book_texts.append(normalize(combined))
         book_ids.append(book["book_id"])
 
     model = load_embedding_model()

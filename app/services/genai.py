@@ -1,8 +1,13 @@
 import hashlib
 import json
+import os
 from datetime import datetime
 
-from app.core.config import CACHE_DIR
+from dotenv import load_dotenv
+
+from app.core.config import CACHE_DIR, ROOT_DIR
+
+load_dotenv(dotenv_path=ROOT_DIR / ".env")
 
 
 def _load_cache(path):
@@ -48,16 +53,45 @@ def build_synthesis_prompt(answers, book_recos):
 
     return (
         "Tu es un assistant de recommandation litteraire. "
-        "Explique pourquoi les livres proposes correspondent aux preferences. "
-        "Donne une synthese courte (6-10 phrases), claire, en francais. "
-        "Ne mentionne pas de points techniques.\n\n"
+        "Fournis une analyse des resultats affiches a l'utilisateur. "
+        "1) Explique pourquoi chaque livre recommande correspond aux preferences. "
+        "2) Donne une lecture rapide des graphiques: radar des preferences, carte semantique "
+        "(ambiance vs densite), top genres, heatmap des criteres. "
+        "3) Termine par une synthese claire. "
+        "Ecris en francais, ton naturel, 10-14 phrases max. "
+        "Ne mentionne pas de points techniques ni de JSON.\n\n"
         f"Preferences utilisateur (JSON): {json.dumps(prefs, ensure_ascii=True)}\n"
         "Top livres:\n"
         + "\n".join(books_lines)
     )
 
 
-def generate_synthesis(prompt, api_key, model_name="gemini-2.5-flash"):
+def _get_gemini_key():
+    return (
+        os.getenv("GEMINI")
+        or os.getenv("GEMINI_API_KEY")
+        or os.getenv("GOOGLE_API_KEY")
+    )
+
+
+def _get_gemini_model_name():
+    env_model = os.getenv("GEMINI_MODEL_NAME") or os.getenv("GEMINI_MODEL")
+    if env_model:
+        return env_model
+    fallback = os.getenv("MODEL_NAME")
+    if fallback and fallback.lower().startswith("gemini-"):
+        return fallback
+    return None
+
+
+def generate_synthesis(prompt, api_key=None, model_name=None):
+    if not model_name:
+        model_name = _get_gemini_model_name() or "gemini-2.5-flash"
+    if not api_key:
+        api_key = _get_gemini_key()
+    if not api_key:
+        raise ValueError("Missing GEMINI API key in environment.")
+
     cache_path = CACHE_DIR / "genai_cache.json"
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     cache = _load_cache(cache_path)
@@ -80,9 +114,15 @@ def generate_synthesis(prompt, api_key, model_name="gemini-2.5-flash"):
     return text, False
 
 
-def translate_to_french(text, api_key, model_name="gemini-2.5-flash"):
+def translate_to_french(text, api_key=None, model_name=None):
     if not text:
         return text
+    if not model_name:
+        model_name = _get_gemini_model_name() or "gemini-2.5-flash"
+    if not api_key:
+        api_key = _get_gemini_key()
+    if not api_key:
+        raise ValueError("Missing GEMINI API key in environment.")
 
     cache_path = CACHE_DIR / "translation_cache.json"
     CACHE_DIR.mkdir(parents=True, exist_ok=True)

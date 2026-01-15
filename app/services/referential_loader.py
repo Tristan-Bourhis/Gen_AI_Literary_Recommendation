@@ -32,7 +32,7 @@ def _keywords_from_text(text):
 
 
 def load_books():
-    path = REFERENTIAL_DIR / "books_reference.csv"
+    path = REFERENTIAL_DIR / "books_clean.csv"
     books = []
     with open(path, "r", encoding="utf-8", errors="ignore") as handle:
         reader = csv.DictReader(handle)

@@ -12,7 +12,7 @@ from app.ui.viz import (
     show_books, 
     show_synthesis
 )
-from app.services.genai import generate_synthesis
+from app.services.genai import build_synthesis_prompt, generate_synthesis
 
 # 1. CONFIGURATION
 st.set_page_config(page_title="Résultats - Bookscout", page_icon="🔮", layout="wide", initial_sidebar_state="collapsed")
@@ -100,11 +100,13 @@ else:
     if st.button("✨ Générer l'explication (IA)", type="primary"):
         with st.spinner("Rédaction en cours..."):
             try:
-                synthesis = generate_synthesis(str(answers), book_recos[:3])
+                prompt = build_synthesis_prompt(answers, book_recos)
+                synthesis, _cached = generate_synthesis(prompt)
                 st.session_state["synthesis_text"] = synthesis
                 st.rerun()
-            except:
+            except Exception as exc:
                 st.error("Service IA indisponible.")
+                st.caption(f"Erreur IA: {exc}")
 
 # LISTE BRUTE
 with st.expander("📚 Voir les données brutes"):
