@@ -1,158 +1,118 @@
 import streamlit as st
+import base64
+import os
 
-
-def apply_book_theme():
-    st.markdown(
-        """
+def load_custom_css():
+    """
+    CSS Global : Logo, Titres, Cartes et Progress Bar.
+    """
+    st.markdown("""
         <style>
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600&family=Literata:wght@400;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;800&display=swap');
 
-        :root {
-            --paper: #eef6f1;
-            --ink: #17211b;
-            --muted: #3f5a4a;
-            --accent: #f62d23;
-            --accent-dark: #9dc7f2;
-            --panel: rgba(255, 255, 255, 0.9);
-            --border: #f62d23;
-            --lichen: #f62d23;
+        /* 1. TYPOGRAPHIE GLOBALE */
+        html, body, [class*="css"], .stMarkdown, p {
+            font-family: 'Outfit', sans-serif;
+            color: #FFFFFF !important;
         }
 
-        html, body, [class*="css"] {
-            font-family: "Space Grotesk", sans-serif;
-            color: var(--ink);
+        /* 2. TITRE PRINCIPAL (Résultats) */
+        .result-title {
+            font-size: 3rem;
+            font-weight: 800;
+            background: -webkit-linear-gradient(45deg, #ffffff, #6BC293);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        .result-subtitle {
+            font-size: 1.2rem;
+            color: #cccccc !important;
+            text-align: center;
+            margin-bottom: 40px;
+            font-weight: 300;
         }
 
-        .stApp {
-            background: linear-gradient(160deg, #f2fbf6 0%, #e6f3ec 45%, #f8fbf9 100%);
-        }
-
-        [data-testid="stSidebar"] {
-            background: var(--lichen);
-            border-right: 1px solid #bcd3c1;
-        }
-
-        [data-testid="stSidebar"] * {
-            color: #000000 !important;
-        }
-
-        [data-testid="stSidebarNav"]::before {
-            content: "Recommandation litteraire";
-            display: block;
-            font-family: "Literata", serif;
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #000000;
-            padding: 0.6rem 0.25rem 0.75rem 0.25rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-            margin-bottom: 0.5rem;
-        }
-
-        .sidebar-title {
-            font-family: "Literata", serif;
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #000000;
-            padding: 0.5rem 0.25rem 0.75rem 0.25rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-            margin-bottom: 0.5rem;
-        }
-
-        [data-testid="stHeader"] {
-            background: var(--accent);
-            border-bottom: 1px solid #b7c8a8;
-        }
-
-        [data-testid="stHeader"] * {
-            color: #000000 !important;
-        }
-
-        h1, h2, h3, h4, .stTitle, .stHeader, .stSubheader,
-        [data-testid="stHeader"] h1, [data-testid="stHeader"] h2,
-        [data-testid="stHeader"] h3, [data-testid="stHeader"] h4,
-        [data-testid="stHeading"] {
-            font-family: "Literata", serif;
-            letter-spacing: 0.3px;
-            color: var(--ink) !important;
-        }
-
-        h1 {
-            color: var(--accent-dark);
-        }
-
-        .stCaption {
-            color: var(--muted);
-        }
-
-        .stMarkdown, .stMarkdown p, .stMarkdown span,
-        .stTextInput label, .stTextArea label, .stSelectbox label,
-        .stMultiSelect label, .stSlider label, label,
-        [data-testid="stMarkdownContainer"] p,
-        [data-testid="stMarkdownContainer"] span,
-        [data-testid="stForm"] label,
-        .stCaption {
-            color: var(--ink) !important;
-        }
-
-        .stTextInput input::placeholder,
-        .stTextArea textarea::placeholder {
-            color: #9aa3b2 !important;
-        }
-
-        .block-container {
-            padding-top: 2rem;
-        }
-
-        .stForm {
-            background: var(--panel);
-            border: 1px solid var(--border);
+        /* 3. DESIGN DES CARTES (Correction et Style) */
+        .book-card {
+            background-color: #1A1B1E;
+            border: 1px solid #333;
             border-radius: 16px;
-            padding: 1.2rem 1.4rem;
-            box-shadow: 0 14px 40px rgba(31, 36, 48, 0.08);
+            padding: 20px;
+            margin-bottom: 20px;
+            /* Bordure verte à gauche */
+            border-left: 6px solid #6BC293;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            height: 100%;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .book-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(107, 194, 147, 0.2);
+            border-color: #6BC293;
         }
 
-        .stTextInput input, .stTextArea textarea, .stSelectbox select, .stMultiSelect div, .stSlider {
-            background-color: #ffffff !important;
-            color: var(--ink) !important;
-            border: 1px solid var(--accent) !important;
-            border-radius: 10px !important;
+        .book-title { 
+            color: #FFFFFF; 
+            font-weight: 700; 
+            font-size: 1.3rem; 
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+        
+        .book-author {
+            color: #AAAAAA;
+            font-size: 0.95rem;
+            font-style: italic;
+            margin-bottom: 15px;
         }
 
-        /* Streamlit/BaseWeb slider track (not a native input[type=range]) */
-        [data-testid="stSlider"] [data-baseweb="slider"] > div > div {
-            background-color: var(--accent) !important;
-        }
-        [data-testid="stSlider"] [data-baseweb="slider"] div[aria-hidden="true"] {
-            background: var(--accent) !important;
-        }
-
-        [data-testid="stSlider"] [role="slider"] {
-            background: var(--accent) !important;
-            border: 2px solid #e2efff !important;
-        }
-
-        .stButton > button {
-            background: linear-gradient(135deg, var(--accent), #ff8f5a);
-            color: #ffffff;
-            border: none;
-            border-radius: 999px;
-            padding: 0.45rem 1.6rem;
-            font-weight: 600;
-            box-shadow: 0 10px 20px rgba(255, 107, 61, 0.25);
-        }
-
-        .stButton > button:hover {
-            background: linear-gradient(135deg, var(--accent-dark), #ff6b3d);
-            color: #ffffff;
-        }
-
-        .stDataFrame {
-            border: 1px solid var(--border);
+        /* Badge Score */
+        .score-badge {
+            background-color: #6BC293;
+            color: #000;
+            padding: 4px 10px;
             border-radius: 12px;
-            overflow: hidden;
-            background: #ffffff;
+            font-weight: bold;
+            font-size: 0.85rem;
+            display: inline-block;
         }
+
+        /* 4. BARRE DE PROGRESSION (Customisation couleur verte) */
+        .stProgress > div > div > div > div {
+            background-color: #6BC293;
+        }
+
+        /* 5. LOGO */
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem 0;
+            margin-bottom: 0rem;
+        }
+        .logo-img { max-width: 300px; width: 100%; height: auto; }
+        
+        /* Cacher la sidebar */
+        section[data-testid="stSidebar"] { display: none; }
         </style>
-        """,
-        unsafe_allow_html=True,
-    )
+    """, unsafe_allow_html=True)
+
+def get_base64_image(image_path):
+    with open(image_path, "rb") as img_file:
+        return base64.b64encode(img_file.read()).decode()
+
+def display_header():
+    if os.path.exists("Bookscout.png"):
+        img_b64 = get_base64_image("Bookscout.png")
+        st.markdown(f"""
+            <div class="logo-container">
+                <img src="data:image/png;base64,{img_b64}" class="logo-img" alt="Bookscout Logo" style="width: 300px; max-width: 300px;">
+            </div>
+            """, unsafe_allow_html=True)
+    else:
+        st.markdown("<h2 style='text-align: center; color: #6BC293;'>Bookscout</h2>", unsafe_allow_html=True)

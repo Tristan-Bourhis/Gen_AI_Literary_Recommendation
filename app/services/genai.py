@@ -78,3 +78,35 @@ def generate_synthesis(prompt, api_key, model_name="gemini-2.5-flash"):
     }
     _save_cache(cache_path, cache)
     return text, False
+
+
+def translate_to_french(text, api_key, model_name="gemini-2.5-flash"):
+    if not text:
+        return text
+
+    cache_path = CACHE_DIR / "translation_cache.json"
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cache = _load_cache(cache_path)
+    key = _prompt_hash(f"{model_name}:{text}")
+    if key in cache:
+        return cache[key]["response"]
+
+    import google.generativeai as genai
+
+    genai.configure(api_key=api_key)
+    model = genai.GenerativeModel(model_name)
+    prompt = (
+        "Translate the following book summary to French. "
+        "Keep proper nouns and titles unchanged. "
+        "Return only the translation.\n\n"
+        f"{text}"
+    )
+    response = model.generate_content(prompt)
+    translated = response.text.strip()
+    cache[key] = {
+        "response": translated,
+        "created_at": datetime.utcnow().isoformat(),
+        "model": model_name,
+    }
+    _save_cache(cache_path, cache)
+    return translated

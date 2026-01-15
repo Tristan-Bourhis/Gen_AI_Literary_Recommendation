@@ -3,31 +3,25 @@
     "id": "free_1",
     "section": "A",
     "type": "text",
-    "label": "1) Decris le type de livre que tu veux lire en ce moment (ambiance, themes, rythme, emotions)."
+    "label": "Décrivez le type de livre que vous souhaitez lire en ce moment (ambiance, thèmes, rythme, émotions)."
   },
   {
     "id": "free_2",
     "section": "A",
     "type": "text",
-    "label": "2) Cite 1 a 3 livres ou auteurs que tu as aimes et explique pourquoi."
-  },
-  {
-    "id": "auteur_favori",
-    "section": "A",
-    "type": "text",
-    "label": "2b) Auteur favori (optionnel) et pourquoi."
+    "label": "Citez 1 à 3 livres ou auteurs que vous avez aimés et expliquez pourquoi."
   },
   {
     "id": "free_3",
     "section": "A",
     "type": "text",
-    "label": "3) Cite 1 ou 2 choses que tu veux absolument eviter dans une lecture (violence, intrigue lente, romance, etc.)."
+    "label": "Citez 1 ou 2 choses que vous souhaitez absolument éviter dans une lecture (violence, intrigue lente, romance, etc.)."
   },
   {
     "id": "action",
     "section": "B",
     "type": "scale",
-    "label": "4) J ai envie d une lecture tres dynamique, avec beaucoup de rebondissements.",
+    "label": "Vous avez envie d'une lecture très dynamique, avec beaucoup de rebondissements.",
     "min": 1,
     "max": 5,
     "default": 3
@@ -36,7 +30,7 @@
     "id": "realiste",
     "section": "B",
     "type": "scale",
-    "label": "5) Je prefere une histoire realiste plutot que magique ou futuriste.",
+    "label": "Vous préférez une histoire réaliste plutôt que magique ou futuriste.",
     "min": 1,
     "max": 5,
     "default": 3
@@ -45,7 +39,7 @@
     "id": "ambiance_sombre",
     "section": "B",
     "type": "scale",
-    "label": "6) Je suis a l aise avec une ambiance sombre ou dure (drame, tension, violence).",
+    "label": "Vous êtes à l'aise avec une ambiance sombre ou dure (drame, tension, violence).",
     "min": 1,
     "max": 5,
     "default": 3
@@ -54,7 +48,7 @@
     "id": "complexite",
     "section": "B",
     "type": "scale",
-    "label": "7) J aime quand l histoire est complexe (intrigue, narration, plusieurs niveaux de lecture).",
+    "label": "Vous aimez quand l'histoire est complexe (intrigue, narration, plusieurs niveaux de lecture).",
     "min": 1,
     "max": 5,
     "default": 3
@@ -63,7 +57,7 @@
     "id": "recent",
     "section": "B",
     "type": "scale",
-    "label": "8) Je prefere lire un livre recent plutot qu un livre ancien.",
+    "label": "Vous préférez lire un livre récent plutôt qu'un livre ancien.",
     "min": 1,
     "max": 5,
     "default": 3
@@ -72,7 +66,7 @@
     "id": "genre",
     "section": "C",
     "type": "multiselect",
-    "label": "9) Quels genres t attirent le plus ? (choix multiple)",
+    "label": "Quels genres vous attirent le plus ? (choix multiple)",
     "options": [
       "Fantasy",
       "Science-fiction",
@@ -85,8 +79,8 @@
       "Dystopie",
       "Aventure",
       "Biographie",
-      "Theatre",
-      "Poesie",
+      "Théâtre",
+      "Poésie",
       "Essais",
       "Autre"
     ]
@@ -95,12 +89,12 @@
     "id": "periode",
     "section": "C",
     "type": "select",
-    "label": "10) Quelle periode de publication preferes-tu ?",
+    "label": "Quelle période de publication préférez-vous ?",
     "options": [
       "Avant 1950",
       "1950-1980",
       "1980-2000",
-      "Apres 2000",
+      "Après 2000",
       "Peu importe"
     ]
   },
@@ -108,29 +102,29 @@
     "id": "themes",
     "section": "C",
     "type": "multiselect",
-    "label": "11) Quels themes t attirent le plus ? (choix multiple)",
+    "label": "Quels thèmes vous attirent le plus ? (choix multiple)",
     "options": [
-      "Quete",
-      "Identite",
+      "Quête",
+      "Identité",
       "Amour",
       "Famille",
-      "Amitie",
+      "Amitié",
       "Pouvoir",
       "Justice",
-      "Liberte",
+      "Liberté",
       "Foi",
       "Survie",
       "Rebellion",
       "Vengeance",
       "Trahison",
       "Secret",
-      "Memoire",
+      "Mémoire",
       "Temps",
       "Mort",
       "Morale",
       "Conscience",
       "Solitude",
-      "Developpement personnel",
+      "Développement personnel",
       "Voyage",
       "Autre"
     ]
@@ -139,11 +133,11 @@
     "id": "format",
     "section": "C",
     "type": "select",
-    "label": "12) Preferes-tu un livre unique ou une serie ?",
+    "label": "Préférez-vous un livre unique ou une série ?",
     "options": [
       "One-shot",
-      "Serie",
-      "Indifferent"
+      "Série",
+      "Indifférent"
     ]
   }
 ]

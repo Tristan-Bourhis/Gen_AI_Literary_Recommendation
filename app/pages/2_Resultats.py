@@ -1,63 +1,117 @@
-import os
-
 import streamlit as st
 
-try:
-    from dotenv import load_dotenv
-except Exception:
-    load_dotenv = None
-
-from app.nlp.pipeline import run_pipeline
-from app.services.genai import build_synthesis_prompt, generate_synthesis
-from app.services.referential_loader import load_books
+# --- IMPORTS ---
+from app.ui.theme import load_custom_css, display_header
 from app.ui.state import init_state
-from app.ui.theme import apply_book_theme
-from app.ui.viz import show_books, show_coverage, show_similarity, show_synthesis
+from app.ui.viz import (
+    show_top3_cards, 
+    show_reader_radar, 
+    show_embedding_scatter,
+    show_genre_bars,
+    show_similarity_heatmap,
+    show_books, 
+    show_synthesis
+)
+from app.services.genai import generate_synthesis
 
+# 1. CONFIGURATION
+st.set_page_config(page_title="Résultats - Bookscout", page_icon="🔮", layout="wide", initial_sidebar_state="collapsed")
 
-st.set_page_config(page_title="Resultats", layout="wide")
+# 2. STYLE & HEADER
 init_state()
-apply_book_theme()
+load_custom_css()
+display_header()
 
-st.title("Resultats")
+st.progress(100)
+st.caption("Analyse terminée avec succès ✅")
+st.markdown("<br>", unsafe_allow_html=True)
 
-answers = st.session_state.get("answers")
-if not answers:
-    st.warning("Aucune reponse disponible. Remplis le questionnaire.")
+# 3. VERIFICATION
+if "book_recos" not in st.session_state or not st.session_state["book_recos"]:
+    st.warning("Aucun résultat.")
+    if st.button("Retour"): st.switch_page("pages/1_Questionnaire.py")
     st.stop()
 
-books = load_books()
-segments, coverage, book_recos, similarities, mode = run_pipeline(answers, books)
+# DATA
+book_recos = st.session_state["book_recos"]
+answers = st.session_state.get("answers", {})
 
-if coverage is None:
-    st.warning("Reponses insuffisantes pour l'analyse.")
-    st.stop()
+# ---------------------------------------------------------
+# A. RÉSULTATS PRINCIPAUX (CARTES)
+# ---------------------------------------------------------
+st.markdown('<div class="result-title">Vos Pépites Littéraires</div>', unsafe_allow_html=True)
+st.markdown('<div class="result-subtitle">Voici la sélection issue de notre analyse sémantique.</div>', unsafe_allow_html=True)
 
-st.session_state["segments"] = segments
-st.session_state["book_recos"] = book_recos
-st.session_state["similarities"] = similarities
-st.session_state["embed_mode"] = mode
+show_top3_cards(book_recos, [], [], book_recos)
 
-st.subheader("Score de couverture")
-show_coverage(coverage, mode)
+st.markdown("<br><hr><br>", unsafe_allow_html=True)
 
-st.subheader("Livres suggeres")
-show_books(book_recos)
+# ---------------------------------------------------------
+# B. TABLEAU DE BORD (4 VISUELS BIEN SÉPARÉS)
+# ---------------------------------------------------------
+st.markdown("### 📊 Tableau de Bord Analytique")
+st.caption("Indicateurs clés de la recommandation.")
+st.write("") 
 
-st.subheader("Carte de similarite")
-labels = [label for label, text in segments if text]
-book_titles = [book["title"] for book in books][:10]
-if similarities is not None:
-    show_similarity(similarities[:, : len(book_titles)], labels, book_titles)
+# --- LIGNE 1 ---
+col1, col2 = st.columns(2, gap="large")
 
-st.subheader("Synthese GenAI")
-if load_dotenv:
-    load_dotenv()
-api_key = os.environ.get("GEMINI_API_KEY", "")
-if not api_key:
-    st.info("Ajoute GEMINI_API_KEY dans l'environnement pour activer la synthese.")
+with col1:
+    with st.container(border=True):
+        st.markdown("<h5 style='text-align:center; color:#6BC293; margin-bottom:15px;'>1. Profil Radar</h5>", unsafe_allow_html=True)
+        show_reader_radar(answers)
+        st.caption("Forme de vos préférences déclarées.")
+
+with col2:
+    with st.container(border=True):
+        st.markdown("<h5 style='text-align:center; color:#6BC293; margin-bottom:15px;'>2. Carte Sémantique</h5>", unsafe_allow_html=True)
+        show_embedding_scatter(book_recos)
+        st.caption("Positionnement : Ambiance vs Densité.")
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# --- LIGNE 2 ---
+col3, col4 = st.columns(2, gap="large")
+
+with col3:
+    with st.container(border=True):
+        st.markdown("<h5 style='text-align:center; color:#6BC293; margin-bottom:15px;'>3. Top Genres</h5>", unsafe_allow_html=True)
+        show_genre_bars(book_recos)
+        st.caption("Les styles dominants (sans vide).")
+
+with col4:
+    with st.container(border=True):
+        # Changement de titre ici
+        st.markdown("<h5 style='text-align:center; color:#6BC293; margin-bottom:15px;'>4. Analyse des Critères</h5>", unsafe_allow_html=True)
+        show_similarity_heatmap(book_recos)
+        st.caption("Correspondance : Livres vs Critères clés.")
+
+st.markdown("<br>", unsafe_allow_html=True)
+
+# ---------------------------------------------------------
+# C. SYNTHESE IA
+# ---------------------------------------------------------
+st.markdown("### 🧠 L'Explication de l'IA")
+
+if "synthesis_text" in st.session_state:
+    show_synthesis(st.session_state["synthesis_text"], cached=True)
 else:
-    if st.button("Generer la synthese"):
-        prompt = build_synthesis_prompt(answers, book_recos)
-        text, cached = generate_synthesis(prompt, api_key)
-        show_synthesis(text, cached=cached)
+    st.info("💡 Cliquez ci-dessous pour obtenir une analyse détaillée.")
+    if st.button("✨ Générer l'explication (IA)", type="primary"):
+        with st.spinner("Rédaction en cours..."):
+            try:
+                synthesis = generate_synthesis(str(answers), book_recos[:3])
+                st.session_state["synthesis_text"] = synthesis
+                st.rerun()
+            except:
+                st.error("Service IA indisponible.")
+
+# LISTE BRUTE
+with st.expander("📚 Voir les données brutes"):
+    show_books(book_recos)
+
+st.markdown("<br><br>", unsafe_allow_html=True)
+c_fin_1, c_fin_2, c_fin_3 = st.columns([1, 1, 1])
+with c_fin_2:
+    if st.button("🔄 Nouvelle Recherche", use_container_width=True):
+        st.switch_page("pages/1_Questionnaire.py")
