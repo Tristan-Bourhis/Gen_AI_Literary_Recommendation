@@ -6,7 +6,7 @@ from app.nlp.similarity import cosine_matrix
 def match_segments_to_books(segments, books):
     cleaned_segments = [normalize(text) for _, text in segments if text.strip()]
     if not cleaned_segments:
-        return {}, None, "none"
+        return {}, None, "none", []
 
     book_texts = []
     book_ids = []
@@ -39,4 +39,4 @@ def match_segments_to_books(segments, books):
     similarities = cosine_matrix(user_emb, book_emb)
     scores = similarities.mean(axis=0) if similarities.size else []
     book_scores = {book_id: float(score) for book_id, score in zip(book_ids, scores)}
-    return book_scores, similarities, model.mode
+    return book_scores, similarities, model.mode, book_ids
