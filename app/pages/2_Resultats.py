@@ -88,7 +88,7 @@ st.markdown('<div class="result-subtitle">Voici la sélection issue de notre ana
 
 with st.container(border=True):
     st.markdown("#### Filtres")
-    st.caption("Ajustez les critÇùres pour explorer diffÇ¸rentes recommandations.")
+    st.caption("Ajustez les critères pour explorer différentes recommandations.")
     col_f1, col_f2 = st.columns(2, gap="large")
     with col_f1:
         genre_options = _extract_genres(book_recos)
@@ -96,12 +96,12 @@ with st.container(border=True):
         selected_genres = st.multiselect(
             "Genres",
             options=genre_options,
-            help="Filtrer les recommandations par genres (multi-sÇ¸lection).",
+            help="Filtrer les recommandations par genres (multi-sélection).",
         )
         selected_periods = st.multiselect(
-            "PÇ¸riodes",
+            "Périodes",
             options=period_options,
-            help="Filtrer selon la pÇ¸riode littÇ¸raire (ex: 19e, 20e).",
+            help="Filtrer selon la période littéraire (ex: 19e, 20e).",
         )
     with col_f2:
         scores = [float(b.score) for b in book_recos] if book_recos else [0.0]
@@ -124,7 +124,7 @@ with st.container(border=True):
             "Top-K",
             options=top_k_options,
             index=top_k_options.index(default_top_k),
-            help="Limiter le nombre de recommandations affichÇ¸es.",
+            help="Limiter le nombre de recommandations affichées.",
         )
 
 selected_genres_norm = {g.lower() for g in selected_genres}
@@ -143,9 +143,9 @@ for book in book_recos:
 filtered_recos = filtered_recos[: min(top_k, len(filtered_recos))]
 
 if not filtered_recos:
-    st.warning("Aucun livre ne correspond aux filtres actuels. Essayez d'assouplir les critÇùres.")
+    st.warning("Aucun livre ne correspond aux filtres actuels. Essayez d'assouplir les critères.")
 else:
-    st.caption(f"{len(filtered_recos)} recommandation(s) affichÇ¸e(s) aprÇùs filtrage.")
+    st.caption(f"{len(filtered_recos)} recommandation(s) affichée(s) après filtrage.")
 
 show_top3_cards(filtered_recos, [], [], filtered_recos)
 
