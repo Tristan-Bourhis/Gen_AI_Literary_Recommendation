@@ -2,14 +2,30 @@
 
 Application Streamlit de recommandation litteraire basee sur un questionnaire et une analyse semantique.
 
+## Fonctionnalites principales
+
+- Landing page et parcours en 2 etapes (profil puis resultats).
+- Questionnaire guide + zones libres pour capter le style recherche.
+- Import/export de profil utilisateur en JSON.
+- Sauvegarde des reponses dans `app/data/user_responses/`.
+- Matching semantique via SBERT (`all-MiniLM-L6-v2`) ou fallback TF-IDF.
+- Scoring personnalise (bonus genre/periode/auteur/themes, penalites "a eviter").
+- Explications par livre: detail du score + segments qui matchent.
+- Filtres de recommandations (genre, periode, score minimum, top-k).
+- Tableau de bord visuel: radar, carte semantique, top genres, heatmap.
+- Export CSV des recommandations filtrees.
+- Synthese GenAI via Gemini sur demande avec cache local.
+- Page "Referentiel" avec KPI et inspection des livres/questions.
+
 ## Fonctionnement
 
 1) Questionnaire
-- L'utilisateur renseigne des preferences libres et guidees (genre, periode, themes).
+- L'utilisateur renseigne des preferences libres et guidees (genre, periode, themes, etc.).
+- Import/export possible via fichier JSON pour reutiliser un profil.
 - Les reponses sont sauvegardees en JSON dans `app/data/user_responses/`.
 
 2) Preparation des donnees
-- Le referentiel `books_reference.csv` est charge et normalise.
+- Le referentiel `books_clean.csv` est charge et normalise.
 - L'annee de publication est extraite si possible et une periode est deduite.
 - Des mots-cles sont derives a partir du titre, auteur, genres et resume.
 
@@ -24,8 +40,9 @@ Application Streamlit de recommandation litteraire basee sur un questionnaire et
 - Classement final par score decroissant.
 
 5) Resultats
-- Tableau des livres recommandes + graphiques (scores, genres, annees).
-- Carte de similarite pour visualiser la correspondance.
+- Tableau des livres recommandes + graphiques (radar, carte semantique, top genres, heatmap).
+- Filtres pour explorer les recommandations + export CSV.
+- Details par livre avec explication du score et segments pertinents.
 - Synthese GenAI via Gemini (1 clic, cache local).
 
 ## Demarrage
@@ -62,6 +79,7 @@ python tasks.py run
 ## GenAI (Gemini)
 
 Definis la variable d'environnement `GEMINI_API_KEY` pour activer la synthese.
+Le cache est stocke dans `app/data/cache/`.
 
 ## Commandes utiles
 
@@ -78,9 +96,5 @@ python tasks.py test
 - `app/pages`: pages Questionnaire, Resultats, Referentiel
 - `app/nlp`: embeddings, similarite, pipeline
 - `app/domain`: scoring et recommendation
-- `app/data/referential`: `questions.json` + `books_reference.csv`
-
-## GenAI (Gemini)
-
-La synthese est generee via Gemini sur demande et mise en cache.
-Definis `GEMINI_API_KEY` dans `.env` pour activer la fonctionnalite.
+- `app/data/referential`: `questions.json` + `books_clean.csv`
+- `scripts/`: utilitaires (build embeddings, sanity check referentiel)
