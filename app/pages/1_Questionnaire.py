@@ -1,16 +1,79 @@
 import streamlit as st
 import json
 import hashlib
+import re
+import unicodedata
 
-# --- IMPORTS DESIGN & STATE ---
 from app.ui.theme import load_custom_css, display_header
 from app.ui.state import init_state
 
-# --- IMPORTS LOGIQUE ---
 from app.services.referential_loader import load_questions, load_books
 from app.ui.forms import render_questionnaire
 from app.services.storage import save_responses
 from app.nlp.pipeline import run_pipeline
+
+def _normalize_key(text):
+    if not text:
+        return ""
+    value = unicodedata.normalize("NFKD", str(text))
+    value = value.encode("ascii", "ignore").decode("ascii")
+    value = re.sub(r"[^a-z0-9]+", " ", value.lower())
+    return " ".join(value.split())
+
+def _coerce_answers_payload(payload):
+    if isinstance(payload, dict):
+        return payload
+    if isinstance(payload, list):
+        out = {}
+        for item in payload:
+            if not isinstance(item, dict):
+                continue
+            if "id" in item and "value" in item:
+                out[item["id"]] = item["value"]
+            elif "key" in item and "value" in item:
+                out[item["key"]] = item["value"]
+        return out
+    return {}
+
+def _build_question_key_map(questions):
+    mapping = {}
+    for q in questions:
+        q_id = q.get("id")
+        if not q_id:
+            continue
+        q_text = q.get("text") or q.get("label") or ""
+        legacy_key = None
+        if q_text:
+            legacy_id = hashlib.md5(q_text.encode("utf-8")).hexdigest()[:10]
+            legacy_key = f"q_{legacy_id}"
+        for key in [q_id, legacy_key, q_text, _normalize_key(q_text)]:
+            if key:
+                mapping[str(key)] = q_id
+    return mapping
+
+def _coerce_answer_value(question, value):
+    q_type = (question.get("type") or "text").lower().strip()
+    if q_type in ["likert", "slider", "scale"]:
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return value
+    if q_type in ["multiselect", "multi"]:
+        if isinstance(value, list):
+            return value
+        if isinstance(value, str):
+            parts = re.split(r"[;|,]", value)
+            return [item.strip() for item in parts if item.strip()]
+        return []
+    if q_type in ["select", "dropdown", "radio", "choice"]:
+        if isinstance(value, str):
+            return value
+        return str(value)
+    if value is None:
+        return ""
+    if isinstance(value, str):
+        return value
+    return json.dumps(value, ensure_ascii=False)
 
 # 1. CONFIGURATION
 st.set_page_config(page_title="Profil - Bookscout", page_icon="📝", layout="wide")
@@ -50,23 +113,26 @@ for i, q in enumerate(questions):
 # =========================================================
 with st.expander("📂 Vous avez déjà un fichier de profil ? (Optionnel)"):
     st.caption("Glissez ici le fichier JSON que vous avez sauvegardé lors d'un test précédent.")
-    uploaded_file = st.file_uploader("Fichier JSON", type=["json"], label_visibility="collapsed")
+    uploaded_file = st.file_uploader("Fichier JSON", type=["json"], label_visibility="collapsed", key="profile_uploader")
     
     if uploaded_file is not None and st.button("Charger ce profil"):
         try:
             payload = json.loads(uploaded_file.read().decode("utf-8"))
-            # On récupère les réponses (format direct ou sous clé "answers")
-            answers_to_load = payload.get("answers", payload)
-            
+            # Load answers from either root or 'answers'
+            raw_answers = payload.get("answers", payload)
+            answers_to_load = _coerce_answers_payload(raw_answers)
+
             count = 0
-            # Mise à jour du Session State
-            for q in questions:
-                q_id = q["id"]
-                if q_id in answers_to_load:
-                    # On force la valeur dans la mémoire de Streamlit
-                    st.session_state[q_id] = answers_to_load[q_id]
+            q_by_id = {q["id"]: q for q in questions}
+            key_to_id = _build_question_key_map(questions)
+            for key, value in answers_to_load.items():
+                q_id = key_to_id.get(key)
+                if q_id is None and isinstance(key, str):
+                    q_id = key_to_id.get(_normalize_key(key))
+                if q_id:
+                    st.session_state[q_id] = _coerce_answer_value(q_by_id.get(q_id, {}), value)
                     count += 1
-            
+
             # On stocke aussi l'objet global
             st.session_state["answers"] = answers_to_load
             
