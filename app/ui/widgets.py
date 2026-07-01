@@ -4,11 +4,12 @@ import streamlit as st
 # ==========================================
 # 1. CARTE DE LIVRE (Correction HTML)
 # ==========================================
-def display_book_card(title, author, score, genre):
+def display_book_card(title, author, score, genre, match_percent=None):
     """
     Affiche une carte propre sans afficher le code HTML brut.
     """
-    match_percent = int(score * 100)
+    if match_percent is None:
+        match_percent = int(score * 100)
     
     # HTML Simplifié et Propre
     html_code = f"""

@@ -46,3 +46,4 @@ class BookReco:
     summary: str
     score_breakdown: Dict[str, float] | None = None
     segment_matches: List[Dict[str, str | float]] | None = None
+    match_percent: int = 0

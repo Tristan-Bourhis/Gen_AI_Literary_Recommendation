@@ -23,8 +23,9 @@ def show_top3_cards(book_recos, segments, similarities, books):
             genre = getattr(book, "genres", "Général")
             summary = getattr(book, "summary", "Pas de résumé.")
             score = getattr(book, "score", 0.95 - (i * 0.05))
+            match_percent = getattr(book, "match_percent", None)
 
-            display_book_card(title, author, score, genre)
+            display_book_card(title, author, score, genre, match_percent=match_percent)
             with st.expander("📖 Lire le résumé"):
                 st.markdown(f"<div style='font-size:0.9rem; color:#ccc; line-height:1.4;'>{summary}</div>", unsafe_allow_html=True)
 

@@ -232,7 +232,13 @@ st.caption("Ouvrez un livre pour comprendre le score et les correspondances.")
 detail_cols = st.columns(2, gap="large")
 for idx, book in enumerate(filtered_recos):
     with detail_cols[idx % 2]:
-        display_book_card(book.title, book.author, book.score, book.genres)
+        display_book_card(
+            book.title,
+            book.author,
+            book.score,
+            book.genres,
+            match_percent=getattr(book, "match_percent", None),
+        )
         with st.expander("Voir détails"):
             breakdown = getattr(book, "score_breakdown", None) or {}
             matches = getattr(book, "segment_matches", None) or []
